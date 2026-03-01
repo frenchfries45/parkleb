@@ -179,7 +179,7 @@ export default function BackendAdmin() {
     const phone = normalizePhone(msg.subscriberPhone);
     const text = encodeURIComponent(msg.message);
     window.open(
-      `https://gw3s.broadnet.me:8443/websmpp/websms?user=TapTap&pass=Ab3$kL9x&sid=Test&mno=${phone}&type=1&text=${text}`,
+      `https://gw3s.broadnet.me:8443/websmpp/websms?user=TapTap&pass=Ab3$kL9x&sid=ParkLEB&mno=${phone}&type=1&text=${text}`,
       "_blank"
     );
   };
