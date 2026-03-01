@@ -200,7 +200,7 @@ export default function BackendAdmin() {
     const phones = group.messages.map((m) => normalizePhone(m.subscriberPhone)).join(",");
     const text = encodeURIComponent(group.messageText);
     window.open(
-      `https://gw3s.broadnet.me:8443/websmpp/websms?user=TapTap&pass=Ab3$kL9x&sid=Test&mno=${phones}&type=1&text=${text}`,
+      `https://gw3s.broadnet.me:8443/websmpp/websms?user=TapTap&pass=Ab3$kL9x&sid=ParkLEB&mno=${phones}&type=1&text=${text}`,
       "_blank"
     );
   };
