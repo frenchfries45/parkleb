@@ -44,17 +44,13 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: callerRoleRows } = await adminClient
-      .from("user_roles")
+    const { data: callerProfile } = await adminClient
+      .from("profiles")
       .select("role")
-      .eq("user_id", callerUser.id);
+      .eq("user_id", callerUser.id)
+      .maybeSingle();
 
-    const callerRoles = (callerRoleRows ?? []).map((r: any) => r.role);
-    const callerRole = callerRoles.includes("backend_admin")
-      ? "backend_admin"
-      : callerRoles.includes("admin")
-      ? "admin"
-      : callerRoles[0] ?? null;
+    const callerRole = callerProfile?.role ?? null;
 
     if (callerRole !== "admin" && callerRole !== "backend_admin") {
       return new Response(JSON.stringify({ error: "Admin or backend access required" }), {
@@ -116,26 +112,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Set username on profile
-    await adminClient
-      .from("profiles")
-      .update({ username: username.toLowerCase() })
-      .eq("user_id", newUser.user.id);
-
-    // Determine the role to assign
+    // Set username + role on profile (handle_new_user trigger inserts the row with default 'employee')
     const assignedRole = ["admin", "employee", "backend_admin"].includes(role)
       ? role
       : "employee";
 
-    // Use upsert to safely overwrite the default 'employee' role inserted by the
-    // handle_new_user trigger. The trigger fires immediately on auth user creation
-    // and always inserts 'employee' — upsert ensures our intended role wins.
     await adminClient
-      .from("user_roles")
-      .upsert(
-        { user_id: newUser.user.id, role: assignedRole },
-        { onConflict: "user_id" }
-      );
+      .from("profiles")
+      .update({ username: username.toLowerCase(), role: assignedRole })
+      .eq("user_id", newUser.user.id);
 
     return new Response(
       JSON.stringify({

@@ -45,13 +45,13 @@ Deno.serve(async (req) => {
     });
 
     // Allow admin and backend_admin to reset passwords
-    const { data: callerRoleData } = await adminClient
-      .from("user_roles")
+    const { data: callerProfile } = await adminClient
+      .from("profiles")
       .select("role")
       .eq("user_id", callerUser.id)
-      .single();
+      .maybeSingle();
 
-    const callerRole = callerRoleData?.role;
+    const callerRole = callerProfile?.role;
 
     if (callerRole !== "admin" && callerRole !== "backend_admin") {
       return new Response(JSON.stringify({ error: "Admin or backend access required" }), {
