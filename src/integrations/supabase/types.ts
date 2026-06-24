@@ -58,24 +58,6 @@ export type Database = {
           },
         ]
       }
-      allowed_usernames: {
-        Row: {
-          created_at: string
-          id: string
-          username: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          username: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          username?: string
-        }
-        Relationships: []
-      }
       payments: {
         Row: {
           amount: number
@@ -111,33 +93,95 @@ export type Database = {
           },
         ]
       }
+      pending_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_bulk: boolean
+          message: string
+          requested_by_user_id: string
+          requested_by_username: string
+          resolved_at: string | null
+          resolved_by_username: string | null
+          status: string
+          subscriber_id: string | null
+          subscriber_name: string
+          subscriber_phone: string
+          vehicle_plate: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_bulk?: boolean
+          message: string
+          requested_by_user_id: string
+          requested_by_username: string
+          resolved_at?: string | null
+          resolved_by_username?: string | null
+          status?: string
+          subscriber_id?: string | null
+          subscriber_name: string
+          subscriber_phone: string
+          vehicle_plate: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_bulk?: boolean
+          message?: string
+          requested_by_user_id?: string
+          requested_by_username?: string
+          resolved_at?: string | null
+          resolved_by_username?: string | null
+          status?: string
+          subscriber_id?: string | null
+          subscriber_name?: string
+          subscriber_phone?: string
+          vehicle_plate?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_messages_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          allowlisted_username: string | null
           avatar_url: string | null
           created_at: string
           display_name: string | null
           email: string | null
           id: string
+          role: Database["public"]["Enums"]["app_role"]
           updated_at: string
           user_id: string
           username: string | null
         }
         Insert: {
+          allowlisted_username?: string | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           user_id: string
           username?: string | null
         }
         Update: {
+          allowlisted_username?: string | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -186,32 +230,14 @@ export type Database = {
         }
         Relationships: []
       }
-      user_roles: {
-        Row: {
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      claim_allowed_username: {
-        Args: { claimed_username: string }
-        Returns: undefined
+      current_user_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"]
       }
       get_email_by_username: {
         Args: { lookup_username: string }
@@ -224,13 +250,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_username_allowed: {
-        Args: { lookup_username: string }
-        Returns: boolean
-      }
     }
     Enums: {
-      app_role: "admin" | "employee"
+      app_role: "admin" | "employee" | "backend_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -358,7 +380,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "employee"],
+      app_role: ["admin", "employee", "backend_admin"],
     },
   },
 } as const
