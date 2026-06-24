@@ -120,22 +120,12 @@ export default function BackendAdmin() {
     setUsersLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("user_id, username, display_name");
+      .select("user_id, username, display_name, role");
 
     if (error || !data) {
       setUsersLoading(false);
       return;
     }
-
-    // Fetch roles for all users
-    const userIds = data.map((p) => p.user_id);
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("user_id, role")
-      .in("user_id", userIds);
-
-    const roleMap: Record<string, string> = {};
-    for (const r of roles || []) roleMap[r.user_id] = r.role;
 
     setAppUsers(
       data
@@ -143,7 +133,7 @@ export default function BackendAdmin() {
         .map((p) => ({
           userId: p.user_id,
           username: p.username!,
-          role: roleMap[p.user_id] || "employee",
+          role: (p.role as string) || "employee",
         }))
         .sort((a, b) => a.username.localeCompare(b.username))
     );

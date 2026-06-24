@@ -17,21 +17,16 @@ export function useUserRole(userId: string | undefined) {
     const fetchRole = async () => {
       setLoading(true);
       const { data, error } = await supabase
-        .from("user_roles")
+        .from("profiles")
         .select("role")
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .maybeSingle();
 
-      if (error) {
+      if (error || !data) {
         console.error("Error fetching user role:", error);
         setRole(null);
-      } else if (!data || data.length === 0) {
-        setRole(null);
       } else {
-        // Priority: backend_admin > admin > employee
-        const roles = data.map((r) => r.role as AppRole);
-        if (roles.includes("backend_admin")) setRole("backend_admin");
-        else if (roles.includes("admin")) setRole("admin");
-        else setRole("employee");
+        setRole(data.role as AppRole);
       }
       setLoading(false);
     };
