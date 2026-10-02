@@ -220,7 +220,15 @@ export default function BackendAdmin() {
       body: { username: newUsername, password: newPassword, role: newRole },
     });
     if (error || data?.error) {
-      toast({ title: "Error", description: data?.error || error?.message, variant: "destructive" });
+      let msg = data?.error || error?.message;
+      try {
+        const ctx = (error as any)?.context;
+        if (ctx && typeof ctx.json === "function") {
+          const body = await ctx.json();
+          if (body?.error) msg = body.error;
+        }
+      } catch { /* ignore */ }
+      toast({ title: "Error", description: msg, variant: "destructive" });
     } else {
       toast({ title: "User Created", description: `@${newUsername} created as ${newRole}.` });
       setNewUsername("");
