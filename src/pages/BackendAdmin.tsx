@@ -97,7 +97,7 @@ export default function BackendAdmin() {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (!roleLoading && role && role !== "backend_admin") {
+    if (!roleLoading && role && role !== "backend_admin" && role !== "admin") {
       navigate("/", { replace: true });
     }
   }, [role, roleLoading, navigate]);
